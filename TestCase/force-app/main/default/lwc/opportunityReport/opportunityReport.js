@@ -33,6 +33,23 @@ export default class OpportunityReport extends LightningElement {
         return options;
     }
 
+    get totalAmount() {
+        return this.opportunities.reduce((total, opportunity) => {
+            return total + (opportunity.Amount || 0);
+        }, 0);
+    }
+
+    get tableRows() {
+        return [
+            ...this.opportunities,
+            {
+                Id: 'summary-row',
+                Name: 'Total',
+                Amount: this.totalAmount
+            }
+        ];
+    }
+
     connectedCallback() {
         this.doInit();
     }
