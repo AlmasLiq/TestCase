@@ -2,6 +2,7 @@ import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { columns as reportColumns } from './columns';
 import { buildTableRows, buildYearOptions, calculateTotalAmount } from './reportRows';
+import { buildExportFilename, exportRowsToCsv } from './exportUtils';
 import { fetchOpportunities } from './opportunityService';
 import { handleRowAction as runRowAction } from './rowActions';
 import { stageOptions as opportunityStageOptions } from './stageOptions';
@@ -30,6 +31,10 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
         return buildTableRows(this.opportunities, this.sortedBy, this.sortedDirection);
     }
 
+    get disableExport() {
+        return this.showSpinner || this.opportunities.length === 0;
+    }
+
     connectedCallback() {
         this.loadOpportunities();
     }
@@ -52,6 +57,10 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
 
     handleRowAction(event) {
         runRowAction(this, event);
+    }
+
+    handleExport() {
+        exportRowsToCsv(this.tableRows, this.columns, buildExportFilename());
     }
 
     async loadOpportunities() {

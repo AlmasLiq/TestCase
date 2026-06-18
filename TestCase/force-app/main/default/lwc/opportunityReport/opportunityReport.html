@@ -30,6 +30,16 @@
             </lightning-input>
         </div>
 
+        <div slot="actions">
+            <lightning-button
+                    label="Export CSV"
+                    title="Export filtered table data"
+                    variant="brand"
+                    onclick={handleExport}
+                    disabled={disableExport}>
+            </lightning-button>
+        </div>
+
         <div class="slds-p-around_medium">
             <lightning-datatable
                     key-field="Id"
