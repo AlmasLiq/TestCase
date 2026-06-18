@@ -1,5 +1,8 @@
 import { LightningElement, track } from 'lwc';
 import getOpportunitiesServer from '@salesforce/apex/OpportunityReportPageController.getOpportunitiesServer';
+import { columns as reportColumns } from './columns';
+import { stageOptions as opportunityStageOptions } from './stageOptions';
+import { sortRecords } from './sortUtils';
 
 export default class OpportunityReport extends LightningElement {
     @track opportunities = [];
@@ -7,21 +10,10 @@ export default class OpportunityReport extends LightningElement {
     showSpinner = false;
     stage = 'all';
     closeDate;
-
-    stageOptions  = [
-        { label: 'All Stages', value: 'all' },
-        { label: 'Prospecting', value: 'Prospecting' },
-        { label: 'Qualification', value: 'Qualification' }
-    ];
-
-    columns = [
-        { label: 'Name', fieldName: 'Name' },
-        { label: 'Fiscal Year', fieldName: 'FiscalYear' },
-        { label: 'Amount', fieldName: 'Amount', type: 'currency' },
-        { label: 'Stage', fieldName: 'StageName' },
-        { label: 'Description', fieldName: 'Description' },
-        { label: 'Close Date', fieldName: 'CloseDate', type: 'date' }
-    ];
+    sortedBy = 'Name';
+    sortedDirection = 'asc';
+    stageOptions = opportunityStageOptions;
+    columns = reportColumns;
 
     get yearOptions() {
         const currentYear = new Date().getFullYear();
@@ -41,13 +33,17 @@ export default class OpportunityReport extends LightningElement {
 
     get tableRows() {
         return [
-            ...this.opportunities,
+            ...this.sortedOpportunities,
             {
                 Id: 'summary-row',
                 Name: 'Total',
                 Amount: this.totalAmount
             }
         ];
+    }
+
+    get sortedOpportunities() {
+        return sortRecords(this.opportunities, this.sortedBy, this.sortedDirection);
     }
 
     connectedCallback() {
@@ -67,6 +63,11 @@ export default class OpportunityReport extends LightningElement {
     handleCloseDateChange(event) {
         this.closeDate = event.detail.value;
         this.doInit();
+    }
+
+    handleSort(event) {
+        this.sortedBy = event.detail.fieldName;
+        this.sortedDirection = event.detail.sortDirection;
     }
 
     async doInit() {
