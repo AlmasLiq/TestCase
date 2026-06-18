@@ -1,10 +1,13 @@
 import { LightningElement, track } from 'lwc';
-import getOpportunitiesServer from '@salesforce/apex/OpportunityReportPageController.getOpportunitiesServer';
+import { NavigationMixin } from 'lightning/navigation';
 import { columns as reportColumns } from './columns';
+import { buildTableRows, buildYearOptions, calculateTotalAmount } from './reportRows';
+import { fetchOpportunities } from './opportunityService';
+import { handleRowAction as runRowAction } from './rowActions';
 import { stageOptions as opportunityStageOptions } from './stageOptions';
-import { sortRecords } from './sortUtils';
+import { updateBudgetYear, updateCloseDate, updateSort, updateStage } from './filterHandlers';
 
-export default class OpportunityReport extends LightningElement {
+export default class OpportunityReport extends NavigationMixin(LightningElement) {
     @track opportunities = [];
     budgetYear = '2024';
     showSpinner = false;
@@ -16,69 +19,49 @@ export default class OpportunityReport extends LightningElement {
     columns = reportColumns;
 
     get yearOptions() {
-        const currentYear = new Date().getFullYear();
-        const options = [{ label: 'All Years', value: 'all' }];
-        for (let i = -2; i <= 2; i++) {
-            const year = (currentYear + i).toString();
-            options.push({ label: year, value: year });
-        }
-        return options;
+        return buildYearOptions();
     }
 
     get totalAmount() {
-        return this.opportunities.reduce((total, opportunity) => {
-            return total + (opportunity.Amount || 0);
-        }, 0);
+        return calculateTotalAmount(this.opportunities);
     }
 
     get tableRows() {
-        return [
-            ...this.sortedOpportunities,
-            {
-                Id: 'summary-row',
-                Name: 'Total',
-                Amount: this.totalAmount
-            }
-        ];
-    }
-
-    get sortedOpportunities() {
-        return sortRecords(this.opportunities, this.sortedBy, this.sortedDirection);
+        return buildTableRows(this.opportunities, this.sortedBy, this.sortedDirection);
     }
 
     connectedCallback() {
-        this.doInit();
+        this.loadOpportunities();
     }
 
     handleChange(event) {
-        this.budgetYear = event.detail.value;
-        this.doInit();
+        updateBudgetYear(this, event);
     }
 
     handleStageChange(event) {
-        this.stage = event.detail.value;
-        this.doInit();
+        updateStage(this, event);
     }
 
     handleCloseDateChange(event) {
-        this.closeDate = event.detail.value;
-        this.doInit();
+        updateCloseDate(this, event);
     }
 
     handleSort(event) {
-        this.sortedBy = event.detail.fieldName;
-        this.sortedDirection = event.detail.sortDirection;
+        updateSort(this, event);
     }
 
-    async doInit() {
+    handleRowAction(event) {
+        runRowAction(this, event);
+    }
+
+    async loadOpportunities() {
         try {
             this.showSpinner = true;
-            const params = {
+            this.opportunities = await fetchOpportunities({
                 budgetYear: this.budgetYear,
                 stage: this.stage,
                 closeDate: this.closeDate
-            };
-            this.opportunities = await getOpportunitiesServer({ params });
+            });
         } catch (e) {
             console.error(e);
         } finally {
