@@ -9,7 +9,10 @@ export default class OpportunityReport extends LightningElement {
     columns = [
         { label: 'Name', fieldName: 'Name' },
         { label: 'Fiscal Year', fieldName: 'FiscalYear' },
-        { label: 'Amount', fieldName: 'Amount', type: 'currency' }
+        { label: 'Amount', fieldName: 'Amount', type: 'currency' },
+        { label: 'Stage', fieldName: 'Stage', type: 'String'},
+        { label: 'Description', fieldName: 'Description', type: 'String'},
+        { label: 'CloseDate', fieldName: 'CloseDate', type: 'FiscalYear'},
     ];
 
     get yearOptions() {
