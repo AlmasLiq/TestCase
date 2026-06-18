@@ -5,14 +5,22 @@ export default class OpportunityReport extends LightningElement {
     @track opportunities = [];
     budgetYear = '2024';
     showSpinner = false;
+    stage = 'all';
+    closeDate;
+
+    stageOptions  = [
+        { label: 'All Stages', value: 'all' },
+        { label: 'Prospecting', value: 'Prospecting' },
+        { label: 'Qualification', value: 'Qualification' }
+    ];
 
     columns = [
         { label: 'Name', fieldName: 'Name' },
         { label: 'Fiscal Year', fieldName: 'FiscalYear' },
         { label: 'Amount', fieldName: 'Amount', type: 'currency' },
-        { label: 'Stage', fieldName: 'Stage', type: 'String'},
-        { label: 'Description', fieldName: 'Description', type: 'String'},
-        { label: 'CloseDate', fieldName: 'CloseDate', type: 'FiscalYear'},
+        { label: 'Stage', fieldName: 'StageName' },
+        { label: 'Description', fieldName: 'Description' },
+        { label: 'Close Date', fieldName: 'CloseDate', type: 'date' }
     ];
 
     get yearOptions() {
@@ -34,10 +42,24 @@ export default class OpportunityReport extends LightningElement {
         this.doInit();
     }
 
+    handleStageChange(event) {
+        this.stage = event.detail.value;
+        this.doInit();
+    }
+
+    handleCloseDateChange(event) {
+        this.closeDate = event.detail.value;
+        this.doInit();
+    }
+
     async doInit() {
         try {
             this.showSpinner = true;
-            const params = { budgetYear: this.budgetYear };
+            const params = {
+                budgetYear: this.budgetYear,
+                stage: this.stage,
+                closeDate: this.closeDate
+            };
             this.opportunities = await getOpportunitiesServer({ params });
         } catch (e) {
             console.error(e);

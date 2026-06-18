@@ -10,6 +10,26 @@
             </lightning-combobox>
         </div>
 
+        <div slot="actions">
+            <lightning-combobox
+                    name="stage"
+                    label="Stage"
+                    value={stage}
+                    options={stageOptions}
+                    onchange={handleStageChange}>
+            </lightning-combobox>
+        </div>
+
+        <div slot="actions">
+            <lightning-input
+                    type="date"
+                    name="closeDate"
+                    label="Close Date"
+                    value={closeDate}
+                    onchange={handleCloseDateChange}>
+            </lightning-input>
+        </div>
+
         <div class="slds-p-around_medium">
             <lightning-datatable
                     key-field="Id"
