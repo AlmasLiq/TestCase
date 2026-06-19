@@ -5,7 +5,18 @@ export const columns = [
     { label: 'Size', fieldName: 'Size__c', sortable: true },
     { label: 'Stage', fieldName: 'StageName', sortable: true },
     { label: 'Description', fieldName: 'Description', sortable: true },
-    { label: 'Close Date', fieldName: 'CloseDate', type: 'date', sortable: true },
+    {
+        label: 'Close Date',
+        fieldName: 'CloseDate',
+        type: 'date',
+        sortable: true,
+        typeAttributes: {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'UTC'
+        }
+    },
     {
         label: 'Edit',
         type: 'button',
