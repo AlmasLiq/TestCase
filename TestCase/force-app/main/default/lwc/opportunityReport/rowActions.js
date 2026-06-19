@@ -1,6 +1,6 @@
 import { deleteRecord } from 'lightning/uiRecordApi';
 import { NavigationMixin } from 'lightning/navigation';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { getErrorMessage, showToast } from './notifications';
 
 export function handleRowAction(component, event) {
     const { action, row } = event.detail;
@@ -42,18 +42,4 @@ async function deleteOpportunity(component, recordId) {
     } finally {
         component.showSpinner = false;
     }
-}
-
-function showToast(component, title, message, variant) {
-    component.dispatchEvent(
-        new ShowToastEvent({
-            title,
-            message,
-            variant
-        })
-    );
-}
-
-function getErrorMessage(error) {
-    return error?.body?.message || error?.message || 'Unexpected error';
 }

@@ -5,7 +5,7 @@ public with sharing class OpportunityReportPageController {
         String budgetYear = params.get('budgetYear');
         String stage = params.get('stage');
         String closeDate = params.get('closeDate');
-        String s = 'SELECT Id, Name, FiscalYear, Amount, StageName, Description, CloseDate ';
+        String s = 'SELECT Id, Name, FiscalYear, Amount, StageName, Description, CloseDate, Size__c ';
         String f = ' FROM Opportunity';
         String w = ' WHERE Id != NULL ';
         String o = ' ORDER BY Name ';
@@ -13,6 +13,11 @@ public with sharing class OpportunityReportPageController {
         if (!String.isEmpty(stage) && stage != 'all') w += ' AND StageName = \'' + String.escapeSingleQuotes(stage) + '\' ';
         if (!String.isEmpty(closeDate)) w += ' AND CloseDate = ' + toSoqlDate(Date.valueOf(closeDate)) + ' ';
         return Database.query(s + f + w + o);
+    }
+
+    @AuraEnabled
+    public static Id recalculateOpportunitySizes() {
+        return Database.executeBatch(new OpportunitySizeBatch(), 200);
     }
 
     private static String toSoqlDate(Date value) {

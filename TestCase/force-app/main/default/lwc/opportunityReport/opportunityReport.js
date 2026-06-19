@@ -3,8 +3,9 @@ import { NavigationMixin } from 'lightning/navigation';
 import { columns as reportColumns } from './columns';
 import { buildTableRows, buildYearOptions, calculateTotalAmount } from './reportRows';
 import { buildExportFilename, exportRowsToCsv } from './exportUtils';
-import { fetchOpportunities } from './opportunityService';
+import { fetchOpportunities, recalculateOpportunitySizes } from './opportunityService';
 import { handleRowAction as runRowAction } from './rowActions';
+import { getErrorMessage, showToast } from './notifications';
 import { stageOptions as opportunityStageOptions } from './stageOptions';
 import { updateBudgetYear, updateCloseDate, updateSort, updateStage } from './filterHandlers';
 
@@ -12,6 +13,7 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
     @track opportunities = [];
     budgetYear = '2024';
     showSpinner = false;
+    isRecalculatingSizes = false;
     stage = 'all';
     closeDate;
     sortedBy = 'Name';
@@ -33,6 +35,10 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
 
     get disableExport() {
         return this.showSpinner || this.opportunities.length === 0;
+    }
+
+    get disableRecalculateSizes() {
+        return this.showSpinner || this.isRecalculatingSizes;
     }
 
     connectedCallback() {
@@ -63,6 +69,19 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
         exportRowsToCsv(this.tableRows, this.columns, buildExportFilename());
     }
 
+    async handleRecalculateSizes() {
+        try {
+            this.isRecalculatingSizes = true;
+            const jobId = await recalculateOpportunitySizes();
+            showToast(this, 'Size recalculation started', `Batch job ${jobId} was started.`, 'success');
+        } catch (e) {
+            console.error(e);
+            showToast(this, 'Size recalculation failed', getErrorMessage(e), 'error');
+        } finally {
+            this.isRecalculatingSizes = false;
+        }
+    }
+
     async loadOpportunities() {
         try {
             this.showSpinner = true;
@@ -77,4 +96,5 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
             this.showSpinner = false;
         }
     }
+
 }

@@ -32,6 +32,16 @@
 
         <div slot="actions">
             <lightning-button
+                    label="Recalculate Sizes"
+                    title="Recalculate Size for all Opportunities"
+                    variant="neutral"
+                    onclick={handleRecalculateSizes}
+                    disabled={disableRecalculateSizes}>
+            </lightning-button>
+        </div>
+
+        <div slot="actions">
+            <lightning-button
                     label="Export CSV"
                     title="Export filtered table data"
                     variant="brand"

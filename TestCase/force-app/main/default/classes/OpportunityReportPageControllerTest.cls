@@ -45,6 +45,15 @@ private class OpportunityReportPageControllerTest {
         System.assertNotEquals(null, yearResults);
     }
 
+    @IsTest
+    static void recalculateOpportunitySizesStartsBatch() {
+        Test.startTest();
+        Id jobId = OpportunityReportPageController.recalculateOpportunitySizes();
+        Test.stopTest();
+
+        System.assertNotEquals(null, jobId);
+    }
+
     private static String toIsoDate(Date value) {
         String month = value.month() < 10 ? '0' + value.month() : String.valueOf(value.month());
         String day = value.day() < 10 ? '0' + value.day() : String.valueOf(value.day());
