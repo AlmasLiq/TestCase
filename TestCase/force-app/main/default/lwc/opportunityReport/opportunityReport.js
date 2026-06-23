@@ -45,7 +45,7 @@ export default class OpportunityReport extends NavigationMixin(LightningElement)
         this.loadOpportunities();
     }
 
-    handleChange(event) {
+    handleYearChange(event) {
         updateBudgetYear(this, event);
     }
 
